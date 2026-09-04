@@ -82,4 +82,18 @@ body {
 
 .sandt {
   display: flex;
+  gap: 24px;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.sandt > * {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .card {
+    font-size: 16px;
+  }
 }
