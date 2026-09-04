@@ -24,20 +24,54 @@ export default function WeatherCard() {
 	}, []);
 
 	return (
-		<div className="card weather-card">
-			<h2>天気</h2>
+		<div>
+			<div className="liquid-glass">
+				<div className="glass-text">
+					<div className="card weather-card">
+						<h2>天気</h2>
 
-			{error && <p>エラー: {error}</p>}
+						{/* 1. エラーがある場合はエラーを表示 */}
+						{error && <p>エラー: {error}</p>}
 
-			{weather ? (
-				<>
-					<p>気温: {weather.main.temp}℃</p>
-					<p>湿度: {weather.main.humidity}%</p>
-					<p>天気: {weather.weather[0].description}</p>
-				</>
-			) : (
-				!error && <p>Loading...</p>
-			)}
+						{/* 2. エラーがなく、データが取得できたら天気情報を表示 */}
+						{weather ? (
+							<>
+								<p>気温: {weather.main.temp}℃</p>
+								<p>湿度: {weather.main.humidity}%</p>
+								<p>天気: {weather.weather[0].description}</p>
+							</>
+						) : (
+							/* 3. エラーもデータもない（初回読み込み中）ならLoadingを表示 */
+							!error && <p>Loading...</p>
+						)}
+					</div>
+				</div>
+			</div>
+			<svg
+				style={{
+					display: "none",
+				}}
+				xmlns="http://www.w3.org/2000/svg">
+				<defs>
+					<filter height="100%" id="glass-distortion" width="100%" x="0%" y="0%">
+						<feTurbulence
+							baseFrequency="0.008 0.008"
+							numOctaves="2"
+							result="noise"
+							seed="92"
+							type="fractalNoise"
+						/>
+						<feGaussianBlur in="noise" result="blurred" stdDeviation="2" />
+						<feDisplacementMap
+							in="SourceGraphic"
+							in2="blurred"
+							scale="77"
+							xChannelSelector="R"
+							yChannelSelector="G"
+						/>
+					</filter>
+				</defs>
+			</svg>
 		</div>
 	);
 }
