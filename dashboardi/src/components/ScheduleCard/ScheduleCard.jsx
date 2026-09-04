@@ -29,7 +29,7 @@ export default function ScheduleCard() {
 
 	return (
 		<>
-			<div className="liquid-glass">
+			<div className="liquid-glass" style={{ width: "35%", margin: "0 0 0 0"}}>
 				<div className="glass-text">
 					<div className="card schedule-card">
 						<h2>今日の予定</h2>

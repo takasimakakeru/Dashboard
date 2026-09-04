@@ -8,8 +8,10 @@ export default function HomePage() {
 		<div style={{ padding: "20px" }}>
 			<ClockCard />
 			<WeatherCard />
+			<div className="sandt">
 			<ScheduleCard />
 			<TodoCard />
+			</div>
 		</div>
 	);
 }
