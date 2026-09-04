@@ -1,23 +1,23 @@
 import { useEffect, useState } from "react";
 
-export default function ScheduleCard() {
-	const [tasks, setTasks] = useState([]);
+export default function TodoCard() {
+	const [todos, setTodos] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 
 	useEffect(() => {
-		fetch("/api/schedule")
+		fetch("/api/todos")
 			.then(async (res) => {
 				const data = await res.json();
 
 				if (!res.ok) {
-					throw new Error(data.error || "予定の取得に失敗しました");
+					throw new Error(data.error || "Todoの取得に失敗しました");
 				}
 
 				return data;
 			})
 			.then((data) => {
-				setTasks(data);
+				setTodos(data);
 			})
 			.catch((err) => {
 				setError(err.message);
@@ -28,22 +28,25 @@ export default function ScheduleCard() {
 	}, []);
 
 	return (
-		<div className="card schedule-card">
-			<h2>今日の予定</h2>
+		<div className="card todo-card">
+			<h2>Todo</h2>
 
 			{loading && <p>読み込み中...</p>}
 
 			{error && <p>エラー: {error}</p>}
 
-			{!loading && !error && tasks.length === 0 && (
-				<p>予定がありません</p>
+			{!loading && !error && todos.length === 0 && (
+				<p>Todoがありません</p>
 			)}
 
-			{tasks.map((item, index) => (
-				<div key={index} className="schedule-item">
-					<p>
-						{item.time} — {item.title}
-					</p>
+			{todos.map((todo) => (
+				<div key={todo.id} className="todo-item">
+					<input
+						type="checkbox"
+						checked={todo.checked}
+						readOnly
+					/>
+					<span>{todo.title}</span>
 				</div>
 			))}
 		</div>

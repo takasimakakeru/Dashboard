@@ -1,8 +1,18 @@
+import { useState, useEffect } from "react";
+
 export default function ClockCard() {
+	const [time, setTime] = useState(new Date());
+
+	useEffect(() => {
+		const timer = setInterval(() => {
+			setTime(new Date());
+		}, 1000);
+
+		return () => clearInterval(timer);
+	}, []);
 	return (
-		<div className="clock-card">
-			<h2>現在時刻</h2>
-			<p>12:34</p>
+		<div className="card clock-card">
+			<p>{time.toLocaleTimeString()}</p>
 		</div>
 	);
 }
