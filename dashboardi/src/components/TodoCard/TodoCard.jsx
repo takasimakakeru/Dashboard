@@ -52,29 +52,58 @@ export default function TodoCard() {
 		window.location.reload();
 	};
 
+	const deleteTodo = async (id) => {
+		console.log(id);
+
+		const response = await fetch(
+			`/api/todo/${id}`,
+			{
+				method: "DELETE"
+			}
+		);
+
+		console.log(response.status);
+
+		window.location.reload();
+	};
+
+	const toggleTodo = async (id, checked) => {
+		await fetch(`/api/todo/${id}`, {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				checked: !checked
+			})
+		});
+
+		window.location.reload();
+	};
+
 	return (
 		<div>
 			<div className="liquid-glass" style={{}}>
 				<div className="glass-text">
-					
-					
+
+
 					<div className="card todo-card">
 						<h2>Todo</h2>
-<div className="inputandbutton">
-						<div class="input-wrapper">
-  	<span class="icon-left">
-    	<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-  	</span>
-  	<input
-		value={newTodo}
-		onChange={(e) => setNewTodo(e.target.value)}
-    	class="custom-input"
-    	type="text"
-    	placeholder="予定を入力..."
-  	/>
-	</div>
-	<button onClick={addTodo} class="original-button">追加</button>
-	</div>
+						<div className="inputandbutton">
+							<div className="input-wrapper">
+								<span className="icon-left">
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+								</span>
+								<input
+									value={newTodo}
+									onChange={(e) => setNewTodo(e.target.value)}
+									className="custom-input"
+									type="text"
+									placeholder="予定を入力..."
+								/>
+							</div>
+							<button onClick={addTodo} className="original-button">追加</button>
+						</div>
 
 						{/* 修正：条件分岐の文字列囲みを解除 */}
 						{loading && <p>読み込み中...</p>}
@@ -93,10 +122,15 @@ export default function TodoCard() {
 								{/* 修正：APIのデータ構造（例: completedフラグ）に合わせてチェック状態を制御 */}
 								<input
 									type="checkbox"
-									checked={todo.completed || false}
-									readOnly
+									checked={todo.checked}
+									onChange={() =>
+										toggleTodo(todo.id, todo.checked)
+									}
 								/>
 								<span>{todo.title}</span>
+
+								<button onClick={() => deleteTodo(todo.id)} className="original-button" style={{ backgroundColor: "red" }}>削除</button>
+
 							</div>
 						))}
 					</div>

@@ -148,6 +148,42 @@ app.get("/api/weather", async (req, res) => {
 	}
 });
 
+app.patch("/api/todo/:id", async (req, res) => {
+	try {
+		const { checked } = req.body;
+
+		const response = await fetch(
+			`https://api.notion.com/v1/blocks/${req.params.id}`,
+			{
+				method: "PATCH",
+				headers: {
+					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
+					"Notion-Version": "2025-09-03",
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					to_do: {
+						checked
+					}
+				})
+			}
+		);
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			throw new Error(data.message);
+		}
+
+		res.json({ success: true });
+	}
+	catch (error) {
+		res.status(500).json({
+			error: error.message
+		});
+	}
+});
+
 app.post("/api/todo", async (req, res) => {
 	console.log("POSTきた");
 	console.log(req.body);
@@ -198,6 +234,28 @@ app.post("/api/todo", async (req, res) => {
 			error: error.message
 		});
 	}
+});
+
+app.delete("/api/todo/:id", async (req, res) => {
+	console.log("DELETEきた");
+	console.log(req.params.id);
+
+	const response = await fetch(
+		`https://api.notion.com/v1/blocks/${req.params.id}`,
+		{
+			method: "PATCH",
+			headers: {
+				Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
+				"Notion-Version": "2025-09-03",
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				archived: true
+			})
+		}
+	);
+
+	res.json({ success: true });
 });
 
 app.listen(PORT, () => {

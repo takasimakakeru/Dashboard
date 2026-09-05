@@ -95,79 +95,79 @@ body {
 
 /* CSS Variables */
 :root {
-  --input-width: 200px;
-  --input-font-size: 15px;
-  --input-pad-x: 32px;
-  --input-pad-y: 5px;
-  --input-pad-x-right: 4px;
-  --input-radius: 50px;
-  --input-bg: #ffffff;
-  --input-color: #111827;
-  --input-placeholder: #9ca3af;
-  --input-border: 1.5px solid #d1d5db;
-  --input-focus-color: #3b82f6;
-  --input-focus-ring: 2px;
-  --input-shadow: 2px 0px 20px 0px rgba(0,0,0,0.08);
-  --input-icon-color: #6b7280;
+	--input-width: 200px;
+	--input-font-size: 15px;
+	--input-pad-x: 32px;
+	--input-pad-y: 5px;
+	--input-pad-x-right: 4px;
+	--input-radius: 50px;
+	--input-bg: #ffffff;
+	--input-color: #111827;
+	--input-placeholder: #9ca3af;
+	--input-border: 1.5px solid #d1d5db;
+	--input-focus-color: #3b82f6;
+	--input-focus-ring: 2px;
+	--input-shadow: 2px 0px 20px 0px rgba(0, 0, 0, 0.08);
+	--input-icon-color: #6b7280;
 }
 
 /* Styles */
 .input-wrapper {
-  position: relative;
-  display: flex;
-  width: var(--input-width);
+	position: relative;
+	display: flex;
+	width: var(--input-width);
 }
 
 .custom-input {
-  width: 100%;
-  font-family: inherit;
-  font-size: var(--input-font-size);
-  padding: var(--input-pad-y) var(--input-pad-x-right) var(--input-pad-y) var(--input-pad-x);
-  border-radius: var(--input-radius);
-  background: var(--input-bg);
-  color: var(--input-color);
-  border: var(--input-border);
-  box-shadow: var(--input-shadow);
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	width: 100%;
+	font-family: inherit;
+	font-size: var(--input-font-size);
+	padding: var(--input-pad-y) var(--input-pad-x-right) var(--input-pad-y) var(--input-pad-x);
+	border-radius: var(--input-radius);
+	background: var(--input-bg);
+	color: var(--input-color);
+	border: var(--input-border);
+	box-shadow: var(--input-shadow);
+	outline: none;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .custom-input::placeholder {
-  color: var(--input-placeholder);
+	color: var(--input-placeholder);
 }
 
 .custom-input:focus {
-  border-color: var(--input-focus-color);
-  box-shadow: 2px 0px 20px 0px rgba(0,0,0,0.08), 0 0 0 2px rgba(59,130,246,0.35);
+	border-color: var(--input-focus-color);
+	box-shadow: 2px 0px 20px 0px rgba(0, 0, 0, 0.08), 0 0 0 2px rgba(59, 130, 246, 0.35);
 }
 
 .icon-left {
-  position: absolute;
-  left: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--input-icon-color);
-  pointer-events: none;
+	position: absolute;
+	left: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--input-icon-color);
+	pointer-events: none;
 }
 
 .original-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  text-decoration: none;
-  color: #ffffff;
-  font-size: 18px;
-  border-radius: 10px;
-  width: 80px;
-  height: 40px;
-  font-weight: bold;
-  transition: 0.3s;
-  background-color: #AEC6CF;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
+	text-decoration: none;
+	color: #ffffff;
+	font-size: 18px;
+	border-radius: 10px;
+	width: 80px;
+	height: 40px;
+	font-weight: bold;
+	transition: 0.3s;
+	background-color: #AEC6CF;
 }
 
 .original-button:hover {
-  opacity: .7;
+	opacity: .7;
 }
 
 .inputandbutton {
