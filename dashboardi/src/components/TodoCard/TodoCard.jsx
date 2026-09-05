@@ -4,6 +4,7 @@ export default function TodoCard() {
 	const [todos, setTodos] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [newTodo, setNewTodo] = useState("");
 
 	useEffect(() => {
 		fetch("/api/todos")
@@ -27,10 +28,42 @@ export default function TodoCard() {
 			});
 	}, []);
 
+	const addTodo = async () => {
+		const response = await fetch("/api/todo", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				title: newTodo
+			})
+		});
+
+		const data = await response.json();
+
+		console.log(response.status);
+		console.log(data);
+
+		if (!response.ok) {
+			alert(data.error);
+			return;
+		}
+
+		window.location.reload();
+	};
+
 	return (
 		<div>
 			<div className="liquid-glass" style={{}}>
 				<div className="glass-text">
+					<input
+						value={newTodo}
+						onChange={(e) => setNewTodo(e.target.value)}
+					/>
+
+					<button onClick={addTodo}>
+						追加
+					</button>
 					<div className="card todo-card">
 						<h2>Todo</h2>
 
@@ -49,10 +82,10 @@ export default function TodoCard() {
 						{!loading && !error && todos.map((todo) => (
 							<div className="todo-item" key={todo.id || todo.title}>
 								{/* 修正：APIのデータ構造（例: completedフラグ）に合わせてチェック状態を制御 */}
-								<input 
-									type="checkbox" 
-									checked={todo.completed || false} 
-									readOnly 
+								<input
+									type="checkbox"
+									checked={todo.completed || false}
+									readOnly
 								/>
 								<span>{todo.title}</span>
 							</div>
