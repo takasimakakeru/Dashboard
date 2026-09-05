@@ -203,3 +203,5 @@ app.post("/api/todo", async (req, res) => {
 app.listen(PORT, () => {
 	console.log(`Server running on http://localhost:${PORT}`);
 });
+
+// To run the server, use the command: node server.js

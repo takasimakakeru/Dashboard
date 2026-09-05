@@ -121,3 +121,5 @@ export default function TodoCard() {
 		</div>
 	);
 }
+
+// 修正：CSSのクラス名を修正
