@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 export default function WeatherCard() {
 	const [weather, setWeather] = useState(null);
 	const [error, setError] = useState(null);
+	const [forecast, setForecast] = useState([]);
 
 	useEffect(() => {
 		fetch("/api/weather")
@@ -21,6 +22,19 @@ export default function WeatherCard() {
 			.catch((err) => {
 				setError(err.message);
 			});
+		fetch("/api/forecast")
+	.then((res) => res.json())
+	.then((data) => {
+
+		const now = Date.now();
+
+		const futureForecast = data.list
+			.filter(item => item.dt * 1000 > now)
+			.slice(0, 5);
+
+		setForecast(futureForecast);
+	
+	});
 	}, []);
 
 	return (
@@ -30,21 +44,79 @@ export default function WeatherCard() {
 					<div className="card weather-card">
 						<h2>天気</h2>
 
-						{/* 1. エラーがある場合はエラーを表示 */}
 						{error && <p>エラー: {error}</p>}
 
-						{/* 2. エラーがなく、データが取得できたら天気情報を表示 */}
 						{weather ? (
-							<>
-								<p>気温: {weather.main.temp}℃</p>
-								<p>湿度: {weather.main.humidity}%</p>
-								<p>天気: {weather.weather[0].description}</p>
-							</>
-						) : (
-							/* 3. エラーもデータもない（初回読み込み中）ならLoadingを表示 */
-							!error && <p>Loading...</p>
-						)}
+	<>
+		<div className="current-weather">
+			
+			<div className="weather-icon">
+	<img
+		src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
+		alt="weather"
+	/>
+</div>
+
+			<div className="current-temp">
+				{Math.round(weather.main.temp)}℃
+			</div>
+
+			<div className="weather-desc">
+				{weather.weather[0].description}
+			</div>
+
+			<div className="weather-details">
+				<span>
+					💧 {weather.main.humidity}%
+				</span>
+			</div>
+		</div>
+	</>
+) : (
+	!error && <p>Loading...</p>
+)}
 					</div>
+					<h3 className="forecast-title">今後15時間</h3>
+					{forecast.map((item) => {
+						const time = new Date(item.dt_txt)
+							.toLocaleTimeString(
+								"ja-JP",
+								{
+									hour: "2-digit",
+									minute: "2-digit"
+								}
+							);
+
+						const weather = item.weather[0].description;
+
+						let icon = "🌤";
+
+						if (weather.includes("雲")) icon = "☁";
+						if (weather.includes("雨")) icon = "🌧";
+						if (weather.includes("雷")) icon = "⛈";
+
+						return (
+							<div
+								className="forecast-item"
+								key={item.dt}
+							>
+								<span>{time}</span>
+
+								<span>{icon}</span>
+
+								<span>
+									{Math.round(item.main.temp)}℃
+								</span>
+
+								<span>
+									{Math.round(
+										(item.pop || 0) * 100
+									)}
+									%
+								</span>
+							</div>
+						);
+					})}
 				</div>
 			</div>
 			<svg

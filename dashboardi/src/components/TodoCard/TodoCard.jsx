@@ -83,7 +83,7 @@ export default function TodoCard() {
 
 	return (
 		<div>
-			<div className="liquid-glass" style={{}}>
+			<div className="liquid-glass">
 				<div className="glass-text">
 
 

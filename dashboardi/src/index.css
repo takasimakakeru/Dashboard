@@ -83,7 +83,7 @@ body {
 .sandt {
 	display: flex;
 	gap: 24px;
-	width: 80%;
+	width: 90%;
 	margin: 0 auto;
 }
 
@@ -175,6 +175,49 @@ body {
 
 .schedule-item p {
 	margin: 0 auto 0 auto;
+}
+
+.forecast-item {
+	display: flex;
+
+	justify-content: space-between;
+
+	align-items: center;
+
+	padding: 8px 0;
+
+	border-bottom:
+		1px solid rgba(255, 255, 255, 0.15);
+}
+
+.forecast-title {
+	margin-top: 32px;
+
+	margin-bottom: 16px;
+}
+
+.current-weather {
+	text-align: center;
+}
+
+.weather-icon {
+	font-size: 4rem;
+	margin-bottom: 10px;
+}
+
+.current-temp {
+	font-size: 3rem;
+	font-weight: bold;
+}
+
+.weather-desc {
+	font-size: 1.3rem;
+	margin-top: 10px;
+}
+
+.weather-details {
+	margin-top: 15px;
+	font-size: 1.1rem;
 }
 
 @media (max-width: 768px) {
