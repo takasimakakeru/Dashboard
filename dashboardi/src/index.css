@@ -17,9 +17,8 @@ body {
 	font-size: 20px;
 }
 
-
 .liquid-glass {
-	width: 80%;
+	width: 90%;
 	height: auto;
 	border-radius: 56.00000000000001px;
 	position: relative;
@@ -119,7 +118,7 @@ body {
 }
 
 .custom-input {
-	width: 100%;
+	width: auto;
 	font-family: inherit;
 	font-size: var(--input-font-size);
 	padding: var(--input-pad-y) var(--input-pad-x-right) var(--input-pad-y) var(--input-pad-x);
@@ -159,8 +158,8 @@ body {
 	color: #ffffff;
 	font-size: 18px;
 	border-radius: 10px;
-	width: 80px;
-	height: 40px;
+	width: auto;
+	height: auto;
 	font-weight: bold;
 	transition: 0.3s;
 	background-color: #AEC6CF;
@@ -170,8 +169,12 @@ body {
 	opacity: .7;
 }
 
-.inputandbutton {
-	display: flex;
+.input-date {
+	border-radius: 30px;
+}
+
+.schedule-item p {
+	margin: 0 auto 0 auto;
 }
 
 @media (max-width: 768px) {

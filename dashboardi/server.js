@@ -70,6 +70,7 @@ app.get("/api/schedule", async (req, res) => {
 				"日付なし";
 
 			return {
+				id: page.id,
 				title,
 				time: date
 			};
@@ -78,6 +79,94 @@ app.get("/api/schedule", async (req, res) => {
 		res.json(tasks);
 	} catch (error) {
 		console.error(error);
+		res.status(500).json({
+			error: error.message
+		});
+	}
+});
+
+app.post("/api/schedule", async (req, res) => {
+	try {
+		const { title, date } = req.body;
+
+		const response = await fetch(
+			"https://api.notion.com/v1/pages",
+			{
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
+					"Notion-Version": "2025-09-03",
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					parent: {
+						database_id: process.env.NOTION_DATABASE_ID
+					},
+					properties: {
+						Name: {
+							title: [
+								{
+									text: {
+										content: title
+									}
+								}
+							]
+						},
+						Date: {
+							date: {
+								start: date
+							}
+						}
+					}
+				})
+			}
+		);
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			throw new Error(data.message);
+		}
+
+		res.json({
+			success: true
+		});
+	}
+	catch (error) {
+		res.status(500).json({
+			error: error.message
+		});
+	}
+});
+
+app.delete("/api/schedule/:id", async (req, res) => {
+	try {
+		const response = await fetch(
+			`https://api.notion.com/v1/pages/${req.params.id}`,
+			{
+				method: "PATCH",
+				headers: {
+					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
+					"Notion-Version": "2025-09-03",
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					in_trash: true
+				})
+			}
+		);
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			throw new Error(data.message);
+		}
+
+		res.json({
+			success: true
+		});
+	}
+	catch (error) {
 		res.status(500).json({
 			error: error.message
 		});
