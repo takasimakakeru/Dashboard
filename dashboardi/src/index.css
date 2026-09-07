@@ -190,10 +190,15 @@ body {
 		1px solid rgba(255, 255, 255, 0.15);
 }
 
-.forecast-title {
-	margin-top: 32px;
-
-	margin-bottom: 16px;
+.forecast-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	width: 175px;
+	padding: 12px 8px;
+	border-radius: 16px;
+	background: rgba(255, 255, 255, 0.12);
 }
 
 .current-weather {
@@ -217,7 +222,32 @@ body {
 
 .weather-details {
 	margin-top: 15px;
-	font-size: 1.1rem;
+	font-size: .1rem;
+}
+
+.weather-content {
+	display: flex;
+	align-items: center;
+	gap: 50px;
+}
+
+.current-weather {
+	flex: 1;
+	text-align: center;
+}
+
+.forecast-section {
+	flex: 2;
+}
+
+.weather-content {
+	display: flex;
+}
+
+.forecast {
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	gap: 10px;
 }
 
 @media (max-width: 768px) {
@@ -228,5 +258,13 @@ body {
 	.sandt {
 		display: block;
 		width: 100%;
+	}
+	.weather-content {
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	.forecast {
+		grid-template-columns: repeat(2, 1fr);
 	}
 }
