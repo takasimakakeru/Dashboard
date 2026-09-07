@@ -25,7 +25,6 @@ export default function WeatherCard() {
 		fetch("/api/forecast")
 	.then((res) => res.json())
 	.then((data) => {
-
 		const now = Date.now();
 
 		const futureForecast = data.list
@@ -33,7 +32,6 @@ export default function WeatherCard() {
 			.slice(0, 5);
 
 		setForecast(futureForecast);
-	
 	});
 	}, []);
 
@@ -78,14 +76,11 @@ export default function WeatherCard() {
 					</div>
 					<h3 className="forecast-title">今後15時間</h3>
 					{forecast.map((item) => {
-						const time = new Date(item.dt_txt)
-							.toLocaleTimeString(
-								"ja-JP",
-								{
-									hour: "2-digit",
-									minute: "2-digit"
-								}
-							);
+						const time = new Intl.DateTimeFormat("ja-JP", {
+	timeZone: "Asia/Tokyo",
+	hour: "2-digit",
+	minute: "2-digit"
+}).format(new Date(item.dt * 1000));
 
 						const weather = item.weather[0].description;
 
