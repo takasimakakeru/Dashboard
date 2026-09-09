@@ -2,6 +2,7 @@ import WeatherCard from "../components/WeatherCard/WeatherCard";
 import ClockCard from "../components/ClockCard/ClockCard";
 import ScheduleCard from "../components/ScheduleCard/ScheduleCard";
 import TodoCard from "../components/TodoCard/TodoCard";
+import TimeTableCard from "../components/TimeTableCard/TimeTableCard.jsx"
 
 export default function HomePage() {
 	return (
@@ -12,6 +13,7 @@ export default function HomePage() {
 			<ScheduleCard />
 			<TodoCard />
 			</div>
+			<TimeTableCard />
 		</div>
 	);
 }

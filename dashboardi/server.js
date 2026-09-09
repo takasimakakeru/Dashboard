@@ -373,6 +373,25 @@ app.delete("/api/todo/:id", async (req, res) => {
 	res.json({ success: true });
 });
 
+app.get("/api/timetable", async (req, res) => {
+  try {
+    const response = await fetch(process.env.GAS_TIMETABLE_URL);
+
+    if (!response.ok) {
+      throw new Error(`GAS API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "時間割の取得に失敗しました"
+    });
+  }
+});
+
 app.listen(PORT, () => {
 	console.log(`Server running on http://localhost:${PORT}`);
 });
