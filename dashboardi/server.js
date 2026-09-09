@@ -186,34 +186,83 @@ app.get("/api/school-files", async (req, res) => {
 			);
 		}
 
+		console.log(JSON.stringify(data.results[0]?.properties, null, 2));
+
 		const files = data.results.map((page) => {
-			const properties = page.properties || {};
+	const properties = page.properties || {};
 
-			const name =
-				properties["名前"]?.title?.[0]?.plain_text ??
-				"名前なし";
+	const name =
+		properties["名前"]?.title?.[0]?.plain_text ??
+		"名前なし";
 
-			const type =
-				properties["種類"]?.select?.name ??
-				"種類なし";
+	const type =
+		properties["種類"]?.select?.name ??
+		"種類なし";
 
-			const file =
-				properties["ファイル"]?.files?.[0] ?? null;
+	const file =
+		properties["ファイル"]?.files?.[0] ?? null;
 
-			const addedDate =
-				properties["追加日"]?.date?.start ??
-				"日付なし";
+	let fileUrl = null;
 
-			return {
-				id: page.id,
-				name,
-				type,
-				file,
-				addedDate
-			};
-		});
+	if (file?.type === "file") {
+		fileUrl = file.file.url;
+	}
+
+	if (file?.type === "external") {
+		fileUrl = file.external.url;
+	}
+
+	const addedDate =
+		properties["追加日"]?.date?.start ??
+		"日付なし";
+
+	return {
+		id: page.id,
+		name,
+		type,
+		fileUrl,
+		addedDate
+	};
+});
 
 		res.json(files);
+	} catch (error) {
+		console.error(error);
+
+		res.status(500).json({
+			error: error.message
+		});
+	}
+});
+
+app.delete("/api/school-files/:id", async (req, res) => {
+	try {
+		const response = await fetch(
+			`https://api.notion.com/v1/pages/${req.params.id}`,
+			{
+				method: "PATCH",
+				headers: {
+					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
+					"Notion-Version": "2025-09-03",
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					in_trash: true
+				})
+			}
+		);
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			throw new Error(
+				data.message || `Notion API error: ${response.status}`
+			);
+		}
+
+		res.json({
+			success: true
+		});
 	} catch (error) {
 		console.error(error);
 
