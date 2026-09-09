@@ -139,6 +139,90 @@ app.post("/api/schedule", async (req, res) => {
 	}
 });
 
+app.get("/api/school-files", async (req, res) => {
+	try {
+		const databaseResponse = await fetch(
+			`https://api.notion.com/v1/databases/${process.env.NOTION_SCHOOL_FILES_DATABASE_ID}`,
+			{
+				headers: {
+					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
+					"Notion-Version": "2025-09-03"
+				}
+			}
+		);
+
+		const database = await databaseResponse.json();
+
+		if (!databaseResponse.ok) {
+			throw new Error(
+				database.message || `Notion API error: ${databaseResponse.status}`
+			);
+		}
+
+		const dataSourceId = database.data_sources?.[0]?.id;
+
+		if (!dataSourceId) {
+			throw new Error("Data Source IDが見つかりません");
+		}
+
+		const queryResponse = await fetch(
+			`https://api.notion.com/v1/data_sources/${dataSourceId}/query`,
+			{
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
+					"Notion-Version": "2025-09-03",
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({})
+			}
+		);
+
+		const data = await queryResponse.json();
+
+		if (!queryResponse.ok) {
+			throw new Error(
+				data.message || `Notion API error: ${queryResponse.status}`
+			);
+		}
+
+		const files = data.results.map((page) => {
+			const properties = page.properties || {};
+
+			const name =
+				properties["名前"]?.title?.[0]?.plain_text ??
+				"名前なし";
+
+			const type =
+				properties["種類"]?.select?.name ??
+				"種類なし";
+
+			const file =
+				properties["ファイル"]?.files?.[0] ?? null;
+
+			const addedDate =
+				properties["追加日"]?.date?.start ??
+				"日付なし";
+
+			return {
+				id: page.id,
+				name,
+				type,
+				file,
+				addedDate
+			};
+		});
+
+		res.json(files);
+	} catch (error) {
+		console.error(error);
+
+		res.status(500).json({
+			error: error.message
+		});
+	}
+});
+
 app.delete("/api/schedule/:id", async (req, res) => {
 	try {
 		const response = await fetch(
