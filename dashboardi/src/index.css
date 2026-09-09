@@ -261,6 +261,118 @@ body {
 	height: auto;
 }
 
+.school-files-form {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-top: 16px;
+	padding: 16px;
+	border-radius: 16px;
+	background: rgba(255, 255, 255, 0.45);
+}
+
+.school-files-selected {
+	margin: 0;
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+
+.school-files-form label {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.school-files-form label span {
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.school-files-form input,
+.school-files-form select {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 10px 12px;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.12);
+	font: inherit;
+}
+
+.school-file-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	width: auto;
+	font-size: auto;
+	box-sizing: border-box;
+	padding: 12px 8px;
+	border-radius: 16px;
+	background: rgba(255, 255, 255, 0.12);
+}
+
+.school-files-list {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 20px;
+}
+
+.school-files-submit {
+	padding: 11px 16px;
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	font: inherit;
+	font-weight: 600;
+	background: rgba(255, 255, 255, 0.8);
+}
+
+.school-files-submit:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.school-file-preview {
+	display: block;
+	max-width: 100%;
+	max-height: 300px;
+	margin-top: 10px;
+	border-radius: 10px;
+	object-fit: contain;
+}
+
+.school-file-edit-form {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: 12px;
+	padding: 14px;
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.4);
+}
+
+.school-file-edit-form label {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.school-file-edit-form label span {
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.school-file-edit-form input,
+.school-file-edit-form select {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 9px 10px;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 9px;
+	font: inherit;
+}
+
 @media (max-width: 900px) {
 	.card {
 		font-size: 16px;
@@ -270,6 +382,7 @@ body {
 		display: block;
 		width: 100%;
 	}
+
 	.weather-content {
 		flex-direction: column;
 		gap: 20px;
@@ -278,6 +391,7 @@ body {
 	.forecast {
 		grid-template-columns: repeat(2, 1fr);
 	}
+
 	.forecast-item {
 		width: 100px;
 	}
