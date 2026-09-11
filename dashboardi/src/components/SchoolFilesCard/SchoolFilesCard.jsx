@@ -219,9 +219,6 @@ export default function SchoolFilesCard() {
 
 					<div className="school-files-header">
 						<h2>学校書類</h2>
-						<p>
-							学校でもらった書類をまとめて管理
-						</p>
 					</div>
 
 					<div className="school-files-upload">
