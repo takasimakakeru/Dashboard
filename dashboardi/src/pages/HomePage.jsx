@@ -14,28 +14,66 @@ export default function HomePage() {
 	useEffect(() => {
 		const now = new Date();
 
-		// 金曜日なら表示
-		if (now.getDay() === 5) {
+		// 今週の番号を作る
+		const startOfYear = new Date(now.getFullYear(), 0, 1);
+		const weekNumber = Math.ceil(
+			(((now - startOfYear) / 86400000) + startOfYear.getDay() + 1) / 7
+		);
+
+		const weekKey = `${now.getFullYear()}-${weekNumber}`;
+		const monthKey = `${now.getFullYear()}-${now.getMonth() + 1}`;
+
+		const syuichiDismissed =
+			localStorage.getItem("syuichi-dismissed") === weekKey;
+
+		const tsukiichiDismissed =
+			localStorage.getItem("tsukiichi-dismissed") === monthKey;
+
+		// 金曜日なら週一通知
+		if (now.getDay() === 5 && !syuichiDismissed) {
 			setShowSyuichi(true);
 		}
 
-		// 毎月1日なら表示
-		if (now.getDate() === 1) {
+		// 1日なら月一通知
+		if (now.getDate() === 1 && !tsukiichiDismissed) {
 			setShowTsukiichi(true);
 		}
 	}, []);
+
+	const closeSyuichi = () => {
+		const now = new Date();
+
+		const startOfYear = new Date(now.getFullYear(), 0, 1);
+		const weekNumber = Math.ceil(
+			(((now - startOfYear) / 86400000) + startOfYear.getDay() + 1) / 7
+		);
+
+		const weekKey = `${now.getFullYear()}-${weekNumber}`;
+
+		localStorage.setItem("syuichi-dismissed", weekKey);
+		setShowSyuichi(false);
+	};
+
+	const closeTsukiichi = () => {
+		const now = new Date();
+
+		const monthKey = `${now.getFullYear()}-${now.getMonth() + 1}`;
+
+		localStorage.setItem("tsukiichi-dismissed", monthKey);
+		setShowTsukiichi(false);
+	};
 
 	return (
 		<div style={{ padding: "20px" }}>
 			{showSyuichi && (
 				<PushNotificationSyuichi
-					onClose={() => setShowSyuichi(false)}
+					onClose={closeSyuichi}
 				/>
 			)}
 
 			{showTsukiichi && (
 				<PushNotificationTsukiichi
-					onClose={() => setShowTsukiichi(false)}
+					onClose={closeTsukiichi}
 				/>
 			)}
 
