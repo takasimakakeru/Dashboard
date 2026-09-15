@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import multer from "multer";
+import ical from "node-ical";
 
 dotenv.config();
 
@@ -14,80 +15,19 @@ const upload = multer({
 app.use(express.json());
 
 app.get("/api/schedule", async (req, res) => {
-	try {
-		const databaseResponse = await fetch(
-			`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}`,
-			{
-				headers: {
-					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
-					"Notion-Version": "2025-09-03"
-				}
-			}
-		);
+	const events = await ical.async.fromURL(
+		process.env.GOOGLE_CALENDAR_ICS_URL
+	);
 
-		const database = await databaseResponse.json();
+	const tasks = Object.values(events)
+		.filter(event => event.type === "VEVENT")
+		.map(event => ({
+			id: event.uid,
+			title: event.summary,
+			time: event.start
+		}));
 
-		if (!databaseResponse.ok) {
-			throw new Error(
-				database.message || `Notion API error: ${databaseResponse.status}`
-			);
-		}
-
-		const dataSourceId = database.data_sources?.[0]?.id;
-
-		if (!dataSourceId) {
-			throw new Error("Data Source IDが見つかりません");
-		}
-
-		const queryResponse = await fetch(
-			`https://api.notion.com/v1/data_sources/${dataSourceId}/query`,
-			{
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
-					"Notion-Version": "2025-09-03",
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({})
-			}
-		);
-
-		const data = await queryResponse.json();
-
-		if (!queryResponse.ok) {
-			throw new Error(
-				data.message || `Notion API error: ${queryResponse.status}`
-			);
-		}
-
-		const tasks = data.results.map((page) => {
-			const properties = page.properties || {};
-
-			const titleProperty = properties.Name;
-			const dateProperty = properties.Date;
-
-			const title =
-				titleProperty?.title?.[0]?.plain_text ??
-				"タイトルなし";
-
-			const date =
-				dateProperty?.date?.start ??
-				"日付なし";
-
-			return {
-				id: page.id,
-				title,
-				time: date
-			};
-		});
-
-		res.json(tasks);
-	} catch (error) {
-		console.error(error);
-		res.status(500).json({
-			error: error.message
-		});
-	}
+	res.json(tasks);
 });
 
 app.post("/api/schedule", async (req, res) => {
