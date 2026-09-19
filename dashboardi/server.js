@@ -305,7 +305,16 @@ app.post("/api/todo", async (req, res) => {
 			throw new Error(data.message);
 		}
 
-		res.json({ success: true });
+		const newTodo = data.results[0];
+
+		res.json({
+			success: true,
+			todo: {
+				id: newTodo.id,
+				title,
+				checked: false
+			}
+		});
 	} catch (error) {
 		res.status(500).json({
 			error: error.message

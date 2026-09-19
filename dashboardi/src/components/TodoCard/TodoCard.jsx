@@ -28,58 +28,82 @@ export default function TodoCard() {
 			});
 	}, []);
 
-	const addTodo = async () => {
-		const response = await fetch("/api/todo", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify({
-				title: newTodo
-			})
-		});
+const addTodo = async () => {
+	if (!newTodo.trim()) {
+		return;
+	}
 
-		const data = await response.json();
+	const response = await fetch("/api/todo", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			title: newTodo
+		})
+	});
 
-		console.log(response.status);
-		console.log(data);
+	const data = await response.json();
 
-		if (!response.ok) {
-			alert(data.error);
-			return;
-		}
+	console.log(response.status);
+	console.log(data);
 
-		window.location.reload();
-	};
+	if (!response.ok) {
+		alert(data.error);
+		return;
+	}
 
-	const deleteTodo = async (id) => {
-		console.log(id);
+	setTodos((prev) => [...prev, data.todo]);
+	setNewTodo("");
+};
 
-		const response = await fetch(
-			`/api/todo/${id}`,
-			{
-				method: "DELETE"
-			}
-		);
+const deleteTodo = async (id) => {
+	const response = await fetch(`/api/todo/${id}`, {
+		method: "DELETE"
+	});
 
-		console.log(response.status);
+	const data = await response.json();
 
-		window.location.reload();
-	};
+	console.log(response.status);
+	console.log(data);
 
-	const toggleTodo = async (id, checked) => {
-		await fetch(`/api/todo/${id}`, {
-			method: "PATCH",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify({
-				checked: !checked
-			})
-		});
+	if (!response.ok) {
+		alert(data.error || "Todoの削除に失敗しました");
+		return;
+	}
 
-		window.location.reload();
-	};
+	setTodos((prev) => prev.filter((todo) => todo.id !== id));
+};
+
+const toggleTodo = async (id, checked) => {
+	const response = await fetch(`/api/todo/${id}`, {
+		method: "PATCH",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			checked: !checked
+		})
+	});
+
+	const data = await response.json();
+
+	console.log(response.status);
+	console.log(data);
+
+	if (!response.ok) {
+		alert(data.error || "Todoの更新に失敗しました");
+		return;
+	}
+
+	setTodos((prev) =>
+		prev.map((todo) =>
+			todo.id === id
+				? { ...todo, checked: !checked }
+				: todo
+		)
+	);
+};
 
 	return (
 		<div>
