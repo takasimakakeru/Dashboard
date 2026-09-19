@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import multer from "multer";
 import ical from "node-ical";
+import { google } from "googleapis";
+import { Readable } from "stream";
 
 dotenv.config();
 
@@ -12,166 +14,76 @@ const upload = multer({
 	storage: multer.memoryStorage()
 });
 
-app.use(express.json());
+const oauth2Client = new google.auth.OAuth2(
+	process.env.GOOGLE_CLIENT_ID,
+	process.env.GOOGLE_CLIENT_SECRET
+);
 
-app.get("/api/schedule", async (req, res) => {
-	const events = await ical.async.fromURL(
-		process.env.GOOGLE_CALENDAR_ICS_URL
-	);
-
-	const tasks = Object.values(events)
-		.filter(event => event.type === "VEVENT")
-		.map(event => ({
-			id: event.uid,
-			title: event.summary,
-			time: event.start
-		}));
-
-	res.json(tasks);
+oauth2Client.setCredentials({
+	refresh_token: process.env.GOOGLE_REFRESH_TOKEN
 });
 
-app.post("/api/schedule", async (req, res) => {
+const drive = google.drive({
+	version: "v3",
+	auth: oauth2Client
+});
+
+app.use(express.json());
+
+app.get("/api/school-files", async (req, res) => {
 	try {
-		const { title, date } = req.body;
-
-		const response = await fetch(
-			"https://api.notion.com/v1/pages",
-			{
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
-					"Notion-Version": "2025-09-03",
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({
-					parent: {
-						database_id: process.env.NOTION_DATABASE_ID
-					},
-					properties: {
-						Name: {
-							title: [
-								{
-									text: {
-										content: title
-									}
-								}
-							]
-						},
-						Date: {
-							date: {
-								start: date
-							}
-						}
-					}
-				})
-			}
-		);
-
-		const data = await response.json();
-
-		if (!response.ok) {
-			throw new Error(data.message);
-		}
-
-		res.json({
-			success: true
+		const result = await drive.files.list({
+			q: `'${process.env.GOOGLE_DRIVE_FOLDER_ID}' in parents and trashed=false`,
+			fields: "files(id,name,mimeType,createdTime,webViewLink)"
 		});
+
+		const files = result.data.files.map(file => ({
+			id: file.id,
+			name: file.name,
+			type: file.mimeType,
+			fileUrl: file.webViewLink,
+			addedDate: file.createdTime
+		}));
+
+		res.json(files);
 	}
 	catch (error) {
+		console.error(error);
+
 		res.status(500).json({
 			error: error.message
 		});
 	}
 });
 
-app.get("/api/school-files", async (req, res) => {
+app.post("/api/school-files", upload.single("file"), async (req, res) => {
 	try {
-		const databaseResponse = await fetch(
-			`https://api.notion.com/v1/databases/${process.env.NOTION_SCHOOL_FILES_DATABASE_ID}`,
-			{
-				headers: {
-					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
-					"Notion-Version": "2025-09-03"
-				}
-			}
-		);
-
-		const database = await databaseResponse.json();
-
-		if (!databaseResponse.ok) {
-			throw new Error(
-				database.message || `Notion API error: ${databaseResponse.status}`
-			);
+		if (!req.file) {
+			throw new Error("ファイルがありません");
 		}
 
-		const dataSourceId = database.data_sources?.[0]?.id;
+		const stream = Readable.from(req.file.buffer);
 
-		if (!dataSourceId) {
-			throw new Error("Data Source IDが見つかりません");
-		}
-
-		const queryResponse = await fetch(
-			`https://api.notion.com/v1/data_sources/${dataSourceId}/query`,
-			{
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
-					"Notion-Version": "2025-09-03",
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({})
-			}
-		);
-
-		const data = await queryResponse.json();
-
-		if (!queryResponse.ok) {
-			throw new Error(
-				data.message || `Notion API error: ${queryResponse.status}`
-			);
-		}
-
-		console.log(JSON.stringify(data.results[0]?.properties, null, 2));
-
-		const files = data.results.map((page) => {
-			const properties = page.properties || {};
-
-			const name =
-				properties["名前"]?.title?.[0]?.plain_text ??
-				"名前なし";
-
-			const type =
-				properties["種類"]?.select?.name ??
-				"種類なし";
-
-			const file =
-				properties["ファイル"]?.files?.[0] ?? null;
-
-			let fileUrl = null;
-
-			if (file?.type === "file") {
-				fileUrl = file.file.url;
-			}
-
-			if (file?.type === "external") {
-				fileUrl = file.external.url;
-			}
-
-			const addedDate =
-				properties["追加日"]?.date?.start ??
-				"日付なし";
-
-			return {
-				id: page.id,
-				name,
-				type,
-				fileUrl,
-				addedDate
-			};
+		const result = await drive.files.create({
+			requestBody: {
+				name: req.body.name || req.file.originalname,
+				parents: [
+					process.env.GOOGLE_DRIVE_FOLDER_ID
+				]
+			},
+			media: {
+				mimeType: req.file.mimetype,
+				body: stream
+			},
+			fields: "id,name"
 		});
 
-		res.json(files);
-	} catch (error) {
+		res.json({
+			success: true,
+			id: result.data.id
+		});
+	}
+	catch (error) {
 		console.error(error);
 
 		res.status(500).json({
@@ -182,33 +94,15 @@ app.get("/api/school-files", async (req, res) => {
 
 app.delete("/api/school-files/:id", async (req, res) => {
 	try {
-		const response = await fetch(
-			`https://api.notion.com/v1/pages/${req.params.id}`,
-			{
-				method: "PATCH",
-				headers: {
-					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
-					"Notion-Version": "2025-09-03",
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({
-					in_trash: true
-				})
-			}
-		);
-
-		const data = await response.json();
-
-		if (!response.ok) {
-			throw new Error(
-				data.message || `Notion API error: ${response.status}`
-			);
-		}
+		await drive.files.delete({
+			fileId: req.params.id
+		});
 
 		res.json({
 			success: true
 		});
-	} catch (error) {
+	}
+	catch (error) {
 		console.error(error);
 
 		res.status(500).json({
@@ -217,34 +111,24 @@ app.delete("/api/school-files/:id", async (req, res) => {
 	}
 });
 
-app.delete("/api/schedule/:id", async (req, res) => {
+app.patch("/api/school-files/:id", async (req, res) => {
 	try {
-		const response = await fetch(
-			`https://api.notion.com/v1/pages/${req.params.id}`,
-			{
-				method: "PATCH",
-				headers: {
-					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
-					"Notion-Version": "2025-09-03",
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({
-					in_trash: true
-				})
+		const { name } = req.body;
+
+		await drive.files.update({
+			fileId: req.params.id,
+			requestBody: {
+				name
 			}
-		);
-
-		const data = await response.json();
-
-		if (!response.ok) {
-			throw new Error(data.message);
-		}
+		});
 
 		res.json({
 			success: true
 		});
 	}
 	catch (error) {
+		console.error(error);
+
 		res.status(500).json({
 			error: error.message
 		});
@@ -696,4 +580,20 @@ app.listen(PORT, () => {
 	console.log(`Server running on http://localhost:${PORT}`);
 });
 
-// To run the server, use the command: node server.js
+app.get("/api/test-drive", async (req, res) => {
+	try {
+		const result = await drive.files.list({
+			pageSize: 10,
+			fields: "files(id,name)"
+		});
+
+		res.json(result.data.files);
+	}
+	catch (error) {
+		console.error(error);
+
+		res.status(500).json({
+			error: error.message
+		});
+	}
+});
