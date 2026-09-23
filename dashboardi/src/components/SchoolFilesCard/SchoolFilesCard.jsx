@@ -423,26 +423,34 @@ export default function SchoolFilesCard() {
 
 											<div>
 												<h3>
-													{file.name}
+													<a
+														href={file.fileUrl}
+														target="_blank"
+														rel="noreferrer"
+													>
+														{file.name}
+													</a>
 												</h3>
-
 												<p>
-													{file.type}
+													{file.type.split("/")[1]}
 													{" ・ "}
-													{file.addedDate}
-												</p>
-											</div>
+													{new Date(
+														file.addedDate
+													).toLocaleDateString("ja-JP")}
+												</p>											</div>
 
 										</div>
 
 										{file.fileUrl && (
-											<img
-												src={file.fileUrl}
-												alt={file.name}
-												className="school-file-preview"
-											/>
+											<a
+												href={file.fileUrl}
+												target="_blank"
+												rel="noreferrer"
+												className="original-button"
+											>
+												開く
+											</a>
 										)}
-
 										<button
 											className="original-button"
 											type="button"
