@@ -373,6 +373,46 @@ body {
 	font: inherit;
 }
 
+.school-file-preview {
+	cursor: pointer;
+}
+
+.image-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	padding: 24px;
+
+	background: rgba(0, 0, 0, 0.75);
+}
+
+.image-modal-image {
+	max-width: 95vw;
+	max-height: 90vh;
+
+	object-fit: contain;
+	border-radius: 12px;
+}
+
+.image-modal-close {
+	position: absolute;
+	top: 20px;
+	right: 24px;
+
+	border: none;
+	background: transparent;
+
+	color: white;
+	font-size: 36px;
+	cursor: pointer;
+}
+
+
 @media (max-width: 900px) {
 	.card {
 		font-size: 16px;

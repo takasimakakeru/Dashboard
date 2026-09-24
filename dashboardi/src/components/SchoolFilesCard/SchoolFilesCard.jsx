@@ -12,6 +12,7 @@ export default function SchoolFilesCard() {
 	const [files, setFiles] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
+	const [previewImage, setPreviewImage] = useState(null);
 
 
 	const [selectedFile, setSelectedFile] = useState(null);
@@ -440,17 +441,18 @@ export default function SchoolFilesCard() {
 												</p>											</div>
 
 										</div>
-
-										{file.fileUrl && (
-											<a
-												href={file.fileUrl}
-												target="_blank"
-												rel="noreferrer"
-												className="original-button"
-											>
-												開く
-											</a>
-										)}
+										{file.type?.startsWith("image/") && (
+	<img
+		src={`/api/school-files/${file.id}/content`}
+		alt={file.name}
+		className="school-file-preview"
+		onClick={() =>
+			setPreviewImage(
+				`/api/school-files/${file.id}/content`
+			)
+		}
+	/>
+)}
 										<button
 											className="original-button"
 											type="button"
@@ -512,6 +514,29 @@ export default function SchoolFilesCard() {
 						)}
 				</div>
 			</div>
+			{previewImage && (
+	<div
+		className="image-modal"
+		onClick={() => setPreviewImage(null)}
+	>
+		<button
+			className="image-modal-close"
+			type="button"
+			onClick={() => setPreviewImage(null)}
+		>
+			×
+		</button>
+
+		<img
+			src={previewImage}
+			alt="拡大プレビュー"
+			className="image-modal-image"
+			onClick={(event) =>
+				event.stopPropagation()
+			}
+		/>
+	</div>
+)}
 		</div>
 	);
 }

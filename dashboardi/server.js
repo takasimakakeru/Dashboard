@@ -56,6 +56,39 @@ app.get("/api/school-files", async (req, res) => {
 	}
 });
 
+app.get("/api/school-files/:id/content", async (req, res) => {
+	try {
+		const file = await drive.files.get({
+			fileId: req.params.id,
+			fields: "name,mimeType"
+		});
+
+		const response = await drive.files.get(
+			{
+				fileId: req.params.id,
+				alt: "media"
+			},
+			{
+				responseType: "stream"
+			}
+		);
+
+		res.setHeader(
+			"Content-Type",
+			file.data.mimeType
+		);
+
+		response.data.pipe(res);
+	}
+	catch (error) {
+		console.error(error);
+
+		res.status(500).json({
+			error: error.message
+		});
+	}
+});
+
 app.post("/api/school-files", upload.single("file"), async (req, res) => {
 	try {
 		if (!req.file) {
@@ -77,6 +110,22 @@ app.post("/api/school-files", upload.single("file"), async (req, res) => {
 			},
 			fields: "id,name"
 		});
+
+		// リンクを知っている全員が閲覧できるようにする
+		await drive.permissions.create({
+			fileId: result.data.id,
+			requestBody: {
+				type: "anyone",
+				role: "reader"
+			}
+		});
+
+		const permissions = await drive.permissions.list({
+			fileId: result.data.id,
+			fields: "permissions(id,type,role,emailAddress)"
+		});
+
+		console.log(permissions.data.permissions);
 
 		res.json({
 			success: true,
