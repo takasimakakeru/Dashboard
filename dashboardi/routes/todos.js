@@ -1,8 +1,36 @@
 import express from "express";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+console.log("現在の場所:", process.cwd());
+
+const result = dotenv.config();
+
+console.log("dotenv:", result.error ? result.error.message : "読み込み成功");
 
 const router = express.Router();
 
-router.get("/api/todos", async (req, res) => {
+console.log(
+	"KEY:",
+	process.env.TRELLO_API_KEY ? "あり" : "なし"
+);
+
+console.log(
+	"TOKEN:",
+	process.env.TRELLO_TOKEN ? "あり" : "なし"
+);
+
+console.log(
+	"LIST:",
+	process.env.TRELLO_LIST_ID ? "あり" : "なし"
+);
+
+console.log("KEY:", process.env.TRELLO_API_KEY ? "あり" : "なし");
+console.log("TOKEN:", process.env.TRELLO_TOKEN ? "あり" : "なし");
+console.log("LIST:", process.env.TRELLO_LIST_ID ? "あり" : "なし");
+
+router.get("/todos", async (req, res) => {
 	try {
 		const response = await fetch(
 			`https://api.trello.com/1/lists/${process.env.TRELLO_LIST_ID}/cards?key=${process.env.TRELLO_API_KEY}&token=${process.env.TRELLO_TOKEN}`
@@ -33,7 +61,7 @@ router.get("/api/todos", async (req, res) => {
 	}
 });
 
-router.post("/api/todo", async (req, res) => {
+router.post("/todo", async (req, res) => {
 	try {
 		const { title } = req.body;
 
@@ -81,7 +109,7 @@ router.post("/api/todo", async (req, res) => {
 	}
 });
 
-router.patch("/api/todo/:id", async (req, res) => {
+router.patch("/todo/:id", async (req, res) => {
 	try {
 		const { checked } = req.body;
 
@@ -129,7 +157,7 @@ router.patch("/api/todo/:id", async (req, res) => {
 	}
 });
 
-router.delete("/api/todo/:id", async (req, res) => {
+router.delete("/todo/:id", async (req, res) => {
 	try {
 		const response = await fetch(
 			`https://api.trello.com/1/cards/${req.params.id}?key=${process.env.TRELLO_API_KEY}&token=${process.env.TRELLO_TOKEN}`,
