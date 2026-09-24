@@ -184,45 +184,6 @@ app.patch("/api/school-files/:id", async (req, res) => {
 	}
 });
 
-app.get("/api/todos", async (req, res) => {
-	try {
-		const response = await fetch(
-			`https://api.notion.com/v1/blocks/${process.env.NOTION_TODO_PAGE_ID}/children`,
-			{
-				headers: {
-					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
-					"Notion-Version": "2025-09-03"
-				}
-			}
-		);
-
-		const data = await response.json();
-
-		if (!response.ok) {
-			throw new Error(
-				data.message || `Notion API error: ${response.status}`
-			);
-		}
-
-		const todos = data.results
-			.filter((block) => block.type === "to_do")
-			.map((block) => ({
-				id: block.id,
-				title: block.to_do.rich_text
-					.map((text) => text.plain_text)
-					.join(""),
-				checked: block.to_do.checked
-			}));
-
-		res.json(todos);
-	} catch (error) {
-		console.error(error);
-		res.status(500).json({
-			error: error.message
-		});
-	}
-});
-
 app.get("/api/weather", async (req, res) => {
 	try {
 		const lat = 35.19;
@@ -274,36 +235,56 @@ app.get("/api/forecast", async (req, res) => {
 	}
 });
 
-app.patch("/api/todo/:id", async (req, res) => {
+app.get("/api/test-trello-cards", async (req, res) => {
 	try {
-		const { checked } = req.body;
-
 		const response = await fetch(
-			`https://api.notion.com/v1/blocks/${req.params.id}`,
-			{
-				method: "PATCH",
-				headers: {
-					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
-					"Notion-Version": "2025-09-03",
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({
-					to_do: {
-						checked
-					}
-				})
-			}
+			`https://api.trello.com/1/lists/${process.env.TRELLO_LIST_ID}/cards?key=${process.env.TRELLO_API_KEY}&token=${process.env.TRELLO_TOKEN}`
 		);
 
 		const data = await response.json();
 
 		if (!response.ok) {
-			throw new Error(data.message);
+			throw new Error(
+				data.message || "Trello API error"
+			);
 		}
 
-		res.json({ success: true });
+		res.json(data);
 	}
 	catch (error) {
+		console.error(error);
+
+		res.status(500).json({
+			error: error.message
+		});
+	}
+});
+
+app.get("/api/todos", async (req, res) => {
+	try {
+		const response = await fetch(
+			`https://api.trello.com/1/lists/${process.env.TRELLO_LIST_ID}/cards?key=${process.env.TRELLO_API_KEY}&token=${process.env.TRELLO_TOKEN}`
+		);
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			throw new Error(
+				data.message || "Trello API error"
+			);
+		}
+
+		const todos = data.map((card) => ({
+			id: card.id,
+			title: card.name,
+			checked: card.closed
+		}));
+
+		res.json(todos);
+	}
+	catch (error) {
+		console.error(error);
+
 		res.status(500).json({
 			error: error.message
 		});
@@ -311,39 +292,74 @@ app.patch("/api/todo/:id", async (req, res) => {
 });
 
 app.post("/api/todo", async (req, res) => {
-	console.log("POSTきた");
-	console.log(req.body);
-
 	try {
 		const { title } = req.body;
 
+		if (!title?.trim()) {
+			return res.status(400).json({
+				error: "タイトルがありません"
+			});
+		}
+
 		const response = await fetch(
-			`https://api.notion.com/v1/blocks/${process.env.NOTION_TODO_PAGE_ID}/children`,
+			`https://api.trello.com/1/cards?key=${process.env.TRELLO_API_KEY}&token=${process.env.TRELLO_TOKEN}`,
 			{
-				method: "PATCH",
+				method: "POST",
 				headers: {
-					Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
-					"Notion-Version": "2025-09-03",
 					"Content-Type": "application/json"
 				},
 				body: JSON.stringify({
-					children: [
-						{
-							object: "block",
-							type: "to_do",
-							to_do: {
-								rich_text: [
-									{
-										type: "text",
-										text: {
-											content: title
-										}
-									}
-								],
-								checked: false
-							}
-						}
-					]
+					name: title.trim(),
+					idList: process.env.TRELLO_LIST_ID
+				})
+			}
+		);
+
+		const data = await response.json();
+
+		console.log("Trello POST:", response.status, data);
+
+		if (!response.ok) {
+			throw new Error(
+				data.message || "Trello API error"
+			);
+		}
+
+		res.json({
+			id: data.id,
+			title: data.name,
+			checked: data.closed
+		});
+	} catch (error) {
+		console.error(error);
+
+		res.status(500).json({
+			error: error.message
+		});
+	}
+});
+
+app.patch("/api/todo/:id", async (req, res) => {
+	try {
+		const { checked } = req.body;
+
+		if (typeof checked !== "boolean") {
+			return res.status(400).json({
+				error: "checkedはbooleanで指定してください"
+			});
+		}
+
+		const response = await fetch(
+			`https://api.trello.com/1/cards/${req.params.id}`,
+			{
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					closed: checked,
+					key: process.env.TRELLO_API_KEY,
+					token: process.env.TRELLO_TOKEN
 				})
 			}
 		);
@@ -351,20 +367,20 @@ app.post("/api/todo", async (req, res) => {
 		const data = await response.json();
 
 		if (!response.ok) {
-			throw new Error(data.message);
+			throw new Error(
+				data.message || "Trello API error"
+			);
 		}
 
-		const newTodo = data.results[0];
-
 		res.json({
-			success: true,
-			todo: {
-				id: newTodo.id,
-				title,
-				checked: false
-			}
+			id: data.id,
+			title: data.name,
+			checked: data.closed
 		});
-	} catch (error) {
+	}
+	catch (error) {
+		console.error(error);
+
 		res.status(500).json({
 			error: error.message
 		});
@@ -372,25 +388,34 @@ app.post("/api/todo", async (req, res) => {
 });
 
 app.delete("/api/todo/:id", async (req, res) => {
-	console.log("DELETEきた");
-	console.log(req.params.id);
+	try {
+		const response = await fetch(
+			`https://api.trello.com/1/cards/${req.params.id}?key=${process.env.TRELLO_API_KEY}&token=${process.env.TRELLO_TOKEN}`,
+			{
+				method: "DELETE"
+			}
+		);
 
-	const response = await fetch(
-		`https://api.notion.com/v1/blocks/${req.params.id}`,
-		{
-			method: "PATCH",
-			headers: {
-				Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
-				"Notion-Version": "2025-09-03",
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify({
-				archived: true
-			})
+		if (!response.ok) {
+			const data = await response.json();
+
+			throw new Error(
+				data.message || "Trello API error"
+			);
 		}
-	);
 
-	res.json({ success: true });
+		res.json({
+			success: true,
+			id: req.params.id
+		});
+	}
+	catch (error) {
+		console.error(error);
+
+		res.status(500).json({
+			error: error.message
+		});
+	}
 });
 
 app.listen(PORT, () => {
