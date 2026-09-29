@@ -1,12 +1,9 @@
-html {
-	color: #33312E;
-}
-
 body {
 	margin: 0;
 	padding: 0;
 	font-family: sans-serif;
 	background-color: #F7F3E9;
+	color: #33312E;
 }
 
 .clock-card {
@@ -43,7 +40,7 @@ body {
 	/* GPUで綺麗に描画させるおまじない */
 }
 
-.liquid-glass p{
+.liquid-glass p {
 	font-size: 30px;
 }
 
@@ -75,7 +72,6 @@ body {
 
 .glass-text {
 	position: relative;
-	color: #ffffff;
 	font-size: 24px;
 	font-weight: 400;
 	text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
@@ -104,7 +100,6 @@ body {
 	--input-pad-x-right: 4px;
 	--input-radius: 50px;
 	--input-bg: #ffffff;
-	--input-color: #111827;
 	--input-placeholder: #9ca3af;
 	--input-border: 1.5px solid #d1d5db;
 	--input-focus-color: #3b82f6;
@@ -127,15 +122,10 @@ body {
 	padding: var(--input-pad-y) var(--input-pad-x-right) var(--input-pad-y) var(--input-pad-x);
 	border-radius: var(--input-radius);
 	background: var(--input-bg);
-	color: var(--input-color);
 	border: var(--input-border);
 	box-shadow: var(--input-shadow);
 	outline: none;
 	transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.custom-input::placeholder {
-	color: var(--input-placeholder);
 }
 
 .custom-input:focus {
@@ -158,7 +148,6 @@ body {
 	justify-content: center;
 	line-height: 1;
 	text-decoration: none;
-	color: #ffffff;
 	font-size: 18px;
 	border-radius: 10px;
 	width: auto;
@@ -410,7 +399,6 @@ body {
 	border: none;
 	background: transparent;
 
-	color: white;
 	font-size: 36px;
 	cursor: pointer;
 }

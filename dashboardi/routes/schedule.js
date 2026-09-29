@@ -52,6 +52,8 @@ router.get("/schedule", async (req, res) => {
 
 // POST
 router.post("/schedule", async (req, res) => {
+	console.log("POST", req.body);
+
 	try {
 		const { title, date } = req.body;
 
@@ -61,22 +63,26 @@ router.post("/schedule", async (req, res) => {
 			});
 		}
 
-		const startDate = new Date(`${date}T00:00:00+09:00`);
-		const endDate = new Date(startDate);
-		endDate.setDate(endDate.getDate() + 1);
+		const [year, month, day] = date.split("-").map(Number);
 
-		const formatDate = (date) =>
-			date.toISOString().slice(0, 10);
+		const nextDay = new Date(
+			year,
+			month - 1,
+			day + 1
+		);
+
+		const endDate =
+			`${nextDay.getFullYear()}-${String(nextDay.getMonth() + 1).padStart(2, "0")}-${String(nextDay.getDate()).padStart(2, "0")}`;
 
 		const response = await calendar.events.insert({
 			calendarId,
 			requestBody: {
 				summary: title,
 				start: {
-					date: formatDate(startDate)
+					date: date
 				},
 				end: {
-					date: formatDate(endDate)
+					date: endDate
 				}
 			}
 		});
@@ -89,6 +95,10 @@ router.post("/schedule", async (req, res) => {
 	}
 	catch (error) {
 		console.error(error);
+
+		if (error.response?.data) {
+			console.error(error.response.data);
+		}
 
 		res.status(500).json({
 			error: error.message

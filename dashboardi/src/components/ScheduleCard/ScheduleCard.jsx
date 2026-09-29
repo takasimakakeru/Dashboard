@@ -30,27 +30,43 @@ export default function ScheduleCard() {
 	}, []);
 
 	const addSchedule = async () => {
-	await fetch("/api/schedule", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			title: newTitle,
-			date: newDate
-		})
-	});
+		try {
+			console.log("追加ボタン");
 
-	window.location.reload();
-};
+			const res = await fetch("/api/schedule", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					title: newTitle,
+					date: newDate
+				})
+			});
 
+			const data = await res.json();
+
+			console.log("status", res.status);
+			console.log(data);
+
+			if (!res.ok) {
+				throw new Error(data.error);
+			}
+
+			window.location.reload();
+		}
+		catch (err) {
+			console.error(err);
+			alert(err.message);
+		}
+	};
 	const deleteSchedule = async (id) => {
-	await fetch(`/api/schedule/${id}`, {
-		method: "DELETE"
-	});
+		await fetch(`/api/schedule/${id}`, {
+			method: "DELETE"
+		});
 
-	window.location.reload();
-};
+		window.location.reload();
+	};
 
 	return (
 		<>
