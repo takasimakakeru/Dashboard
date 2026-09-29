@@ -1,8 +1,12 @@
+html {
+	color: #33312E;
+}
+
 body {
 	margin: 0;
 	padding: 0;
 	font-family: sans-serif;
-	background-color: #AEC6CF;
+	background-color: #F7F3E9;
 }
 
 .clock-card {
@@ -39,9 +43,8 @@ body {
 	/* GPUで綺麗に描画させるおまじない */
 }
 
-.liquid-glass p {
+.liquid-glass p{
 	font-size: 30px;
-	color: whitesmoke;
 }
 
 .liquid-glass:focus {
